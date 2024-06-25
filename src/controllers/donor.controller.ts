@@ -24,7 +24,7 @@ export class DonorController {
 
   @post('/donor')
   @response(200, {
-    description: 'Hospital model instance',
+    description: 'Donor model instance',
     content: {'application/json': {schema: getModelSchemaRef(Donor)}},
   })
   async create(

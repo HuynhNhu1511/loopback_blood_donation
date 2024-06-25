@@ -74,7 +74,7 @@ export class CampaignController {
 
   @get('/campaigns/{id}')
   @response(200, {
-    description: 'List of campaign',
+    description: 'Get campaign by Id',
     content: {
       'application/json': {
         schema: getModelSchemaRef(Campaign, {includeRelations: true}),

@@ -31,7 +31,7 @@ export class AppointmentController {
 
   @post('/appointment')
   @response(200, {
-    description: 'Hospital model instance',
+    description: 'Appointment model instance',
     content: {'application/json': {schema: getModelSchemaRef(Appointment)}},
   })
   async create(
