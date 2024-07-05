@@ -1,11 +1,12 @@
 // Uncomment these imports to begin using these cool features!
 
-import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
+// import {authenticate} from '@loopback/authentication';
+import {service} from '@loopback/core';
+import {FilterExcludingWhere} from '@loopback/repository';
 import {
   del,
   get,
   getModelSchemaRef,
-  HttpErrors,
   param,
   patch,
   post,
@@ -13,20 +14,13 @@ import {
   response,
 } from '@loopback/rest';
 import {Appointment} from '../models';
-import {
-  AppointmentRepository,
-  DonorRepository,
-  HospitalRepository,
-} from '../repositories';
+import {AppointmentService} from '../services';
 
+// @authenticate('jwt')
 export class AppointmentController {
   constructor(
-    @repository(AppointmentRepository)
-    public appointmentRepository: AppointmentRepository,
-    @repository(HospitalRepository)
-    public hospitalRepository: HospitalRepository,
-    @repository(DonorRepository)
-    public donorRepository: DonorRepository,
+    @service(AppointmentService)
+    public appointmentService: AppointmentService,
   ) {}
 
   @post('/appointment')
@@ -47,24 +41,7 @@ export class AppointmentController {
     })
     appointment: Omit<Appointment, 'id'>,
   ): Promise<Appointment> {
-    // Check if hospitalId exists
-    const existsHospital = await this.hospitalRepository.exists(
-      appointment.hospitalId,
-    );
-    if (!existsHospital) {
-      throw new HttpErrors.BadRequest(
-        `Hospital with id ${appointment.hospitalId} does not exist`,
-      );
-    }
-
-    // Check if donorId exists
-    const existsDonor = await this.donorRepository.exists(appointment.donorId);
-    if (!existsDonor) {
-      throw new HttpErrors.BadRequest(
-        `Donor with id ${appointment.hospitalId} does not exist`,
-      );
-    }
-    return this.appointmentRepository.create(appointment);
+    return this.appointmentService.createAppointment(appointment);
   }
 
   @get('/appointment')
@@ -79,10 +56,8 @@ export class AppointmentController {
       },
     },
   })
-  async find(
-    @param.filter(Appointment) filter?: Filter<Appointment>,
-  ): Promise<Appointment[]> {
-    return this.appointmentRepository.find(filter);
+  async find(): Promise<Appointment[]> {
+    return this.appointmentService.findAppointments();
   }
 
   @get('/appointment/{id}')
@@ -99,7 +74,7 @@ export class AppointmentController {
     @param.filter(Appointment, {exclude: 'where'})
     filter?: FilterExcludingWhere<Appointment>,
   ): Promise<Appointment> {
-    return this.appointmentRepository.findById(id, filter);
+    return this.appointmentService.findAppointmentById(id);
   }
 
   @patch('/appointment/{id}')
@@ -120,7 +95,7 @@ export class AppointmentController {
     })
     appointment: Appointment,
   ): Promise<void> {
-    await this.appointmentRepository.updateById(id, appointment);
+    await this.appointmentService.updateAppointmentById(id, appointment);
   }
 
   @del('/appointment/{id}')
@@ -128,6 +103,6 @@ export class AppointmentController {
     description: 'Appointment DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.appointmentRepository.deleteById(id);
+    await this.appointmentService.deleteAppointmentById(id);
   }
 }

@@ -1,12 +1,12 @@
-import {CampaignRepository} from './../repositories/campaign.repository';
+import {CampaignService} from './../services/campaign.service';
 // Uncomment these imports to begin using these cool features!
 
-import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
+// import {authenticate} from '@loopback/authentication';
+import {service} from '@loopback/core';
 import {
   del,
   get,
   getModelSchemaRef,
-  HttpErrors,
   param,
   patch,
   post,
@@ -14,16 +14,13 @@ import {
   response,
 } from '@loopback/rest';
 import {Campaign} from '../models';
-import {HospitalRepository} from '../repositories';
 
 // import {inject} from '@loopback/core';
-
+// @authenticate('jwt')
 export class CampaignController {
   constructor(
-    @repository(CampaignRepository)
-    public campaignRepository: CampaignRepository,
-    @repository(HospitalRepository)
-    public hospitalRepository: HospitalRepository,
+    @service(CampaignService)
+    public campaignService: CampaignService,
   ) {}
 
   @post('/campaigns')
@@ -45,13 +42,14 @@ export class CampaignController {
     campaign: Omit<Campaign, 'id'>,
   ): Promise<Campaign> {
     // Check if hospitalId exists
-    const exists = await this.hospitalRepository.exists(campaign.hospitalId);
-    if (!exists) {
-      throw new HttpErrors.BadRequest(
-        `Hospital with id ${campaign.hospitalId} does not exist`,
-      );
-    }
-    return this.campaignRepository.create(campaign);
+    // const exists = await this.hospitalRepository.exists(campaign.hospitalId);
+    // if (!exists) {
+    //   throw new HttpErrors.BadRequest(
+    //     `Hospital with id ${campaign.hospitalId} does not exist`,
+    //   );
+    // }
+    // return this.campaignRepository.create(campaign);
+    return this.campaignService.createCampaign(campaign);
   }
 
   @get('/campaigns')
@@ -66,10 +64,8 @@ export class CampaignController {
       },
     },
   })
-  async find(
-    @param.filter(Campaign) filter?: Filter<Campaign>,
-  ): Promise<Campaign[]> {
-    return this.campaignRepository.find(filter);
+  async find(): Promise<Campaign[]> {
+    return this.campaignService.findCampaigns();
   }
 
   @get('/campaigns/{id}')
@@ -81,12 +77,8 @@ export class CampaignController {
       },
     },
   })
-  async findById(
-    @param.path.number('id') id: number,
-    @param.filter(Campaign, {exclude: 'where'})
-    filter?: FilterExcludingWhere<Campaign>,
-  ): Promise<Campaign> {
-    return this.campaignRepository.findById(id, filter);
+  async findById(@param.path.number('id') id: number): Promise<Campaign> {
+    return this.campaignService.findCampaignById(id);
   }
 
   @patch('/campaigns/{id}')
@@ -104,7 +96,7 @@ export class CampaignController {
     })
     campaign: Campaign,
   ): Promise<void> {
-    await this.campaignRepository.updateById(id, campaign);
+    await this.campaignService.updateCampaignById(id, campaign);
   }
 
   @del('/campaign/{id}')
@@ -112,6 +104,6 @@ export class CampaignController {
     description: 'Campaign DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.campaignRepository.deleteById(id);
+    await this.campaignService.deleteCampaignById(id);
   }
 }

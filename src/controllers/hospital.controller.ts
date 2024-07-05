@@ -1,6 +1,7 @@
 // Uncomment these imports to begin using these cool features!
 
-import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
+// import {authenticate} from '@loopback/authentication';
+import {service} from '@loopback/core';
 import {
   del,
   get,
@@ -11,15 +12,16 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
-import {Hospital} from '../models';
-import {HospitalRepository} from '../repositories';
+import {Hospital} from '../models/hospital.model';
+import {HospitalService} from '../services';
 
 // import {inject} from '@loopback/core';
 
+// @authenticate('jwt')
 export class HospitalController {
   constructor(
-    @repository(HospitalRepository)
-    public hospitalRepository: HospitalRepository,
+    @service(HospitalService)
+    public hospitalService: HospitalService,
   ) {}
 
   @post('/hospitals')
@@ -40,7 +42,7 @@ export class HospitalController {
     })
     hospital: Omit<Hospital, 'id'>,
   ): Promise<Hospital> {
-    return this.hospitalRepository.create(hospital);
+    return this.hospitalService.createHospital(hospital);
   }
 
   @get('/hospitals')
@@ -55,10 +57,8 @@ export class HospitalController {
       },
     },
   })
-  async find(
-    @param.filter(Hospital) filter?: Filter<Hospital>,
-  ): Promise<Hospital[]> {
-    return this.hospitalRepository.find(filter);
+  async find(): Promise<Hospital[]> {
+    return this.hospitalService.findHospitals();
   }
 
   @get('/hospitals/{id}')
@@ -70,12 +70,8 @@ export class HospitalController {
       },
     },
   })
-  async findById(
-    @param.path.number('id') id: number,
-    @param.filter(Hospital, {exclude: 'where'})
-    filter?: FilterExcludingWhere<Hospital>,
-  ): Promise<Hospital> {
-    return this.hospitalRepository.findById(id, filter);
+  async findById(@param.path.number('id') id: number): Promise<Hospital> {
+    return this.hospitalService.findHospitalById(id);
   }
 
   @patch('/hospitals/{id}')
@@ -93,7 +89,7 @@ export class HospitalController {
     })
     hospital: Hospital,
   ): Promise<void> {
-    await this.hospitalRepository.updateById(id, hospital);
+    await this.hospitalService.updateHospitalById(id, hospital);
   }
 
   @del('/hospitals/{id}')
@@ -101,6 +97,6 @@ export class HospitalController {
     description: 'Hospital DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.hospitalRepository.deleteById(id);
+    await this.hospitalService.deleteHospitalById(id);
   }
 }

@@ -1,6 +1,6 @@
 // Uncomment these imports to begin using these cool features!
 
-import {Filter, FilterExcludingWhere, repository} from '@loopback/repository';
+import {service} from '@loopback/core';
 import {
   del,
   get,
@@ -12,14 +12,14 @@ import {
   response,
 } from '@loopback/rest';
 import {Donor} from '../models';
-import {DonorRepository} from '../repositories';
+import {DonorService} from '../services';
 
 // import {inject} from '@loopback/core';
-
+// @authenticate('jwt')
 export class DonorController {
   constructor(
-    @repository(DonorRepository)
-    public donorRepository: DonorRepository,
+    @service(DonorService)
+    public donorService: DonorService,
   ) {}
 
   @post('/donor')
@@ -40,7 +40,7 @@ export class DonorController {
     })
     donor: Omit<Donor, 'id'>,
   ): Promise<Donor> {
-    return this.donorRepository.create(donor);
+    return this.donorService.createDonor(donor);
   }
 
   @get('/donor')
@@ -55,8 +55,8 @@ export class DonorController {
       },
     },
   })
-  async find(@param.filter(Donor) filter?: Filter<Donor>): Promise<Donor[]> {
-    return this.donorRepository.find();
+  async find(): Promise<Donor[]> {
+    return this.donorService.findDonors();
   }
 
   @get('/donor/{id}')
@@ -68,12 +68,8 @@ export class DonorController {
       },
     },
   })
-  async findById(
-    @param.path.number('id') id: number,
-    @param.filter(Donor, {exclude: 'where'})
-    filter?: FilterExcludingWhere<Donor>,
-  ): Promise<Donor> {
-    return this.donorRepository.findById(id, filter);
+  async findById(@param.path.number('id') id: number): Promise<Donor> {
+    return this.donorService.findDonorById(id);
   }
 
   @patch('/donor/{id}')
@@ -91,7 +87,7 @@ export class DonorController {
     })
     donor: Donor,
   ): Promise<void> {
-    await this.donorRepository.updateById(id, donor);
+    await this.donorService.updateDonorById(id, donor);
   }
 
   @del('/donor/{id}')
@@ -99,6 +95,6 @@ export class DonorController {
     description: 'Donor DELETE success',
   })
   async deleteById(@param.path.number('id') id: number): Promise<void> {
-    await this.donorRepository.deleteById(id);
+    await this.donorService.deleteDonorById(id);
   }
 }
