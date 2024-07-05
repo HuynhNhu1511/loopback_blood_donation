@@ -1,6 +1,7 @@
 // Uncomment these imports to begin using these cool features!
 
 // import {authenticate} from '@loopback/authentication';
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {FilterExcludingWhere} from '@loopback/repository';
 import {
@@ -16,7 +17,7 @@ import {
 import {Appointment} from '../models';
 import {AppointmentService} from '../services';
 
-// @authenticate('jwt')
+@authenticate('jwt')
 export class AppointmentController {
   constructor(
     @service(AppointmentService)

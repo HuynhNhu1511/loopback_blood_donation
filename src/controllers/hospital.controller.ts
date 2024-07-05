@@ -1,6 +1,7 @@
 // Uncomment these imports to begin using these cool features!
 
 // import {authenticate} from '@loopback/authentication';
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   del,
@@ -17,7 +18,7 @@ import {HospitalService} from '../services';
 
 // import {inject} from '@loopback/core';
 
-// @authenticate('jwt')
+@authenticate('jwt')
 export class HospitalController {
   constructor(
     @service(HospitalService)

@@ -2,6 +2,7 @@ import {CampaignService} from './../services/campaign.service';
 // Uncomment these imports to begin using these cool features!
 
 // import {authenticate} from '@loopback/authentication';
+import {authenticate} from '@loopback/authentication';
 import {service} from '@loopback/core';
 import {
   del,
@@ -16,7 +17,7 @@ import {
 import {Campaign} from '../models';
 
 // import {inject} from '@loopback/core';
-// @authenticate('jwt')
+@authenticate('jwt')
 export class CampaignController {
   constructor(
     @service(CampaignService)
